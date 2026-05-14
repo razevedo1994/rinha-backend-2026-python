@@ -1,4 +1,7 @@
+import msgspec
 from robyn import Robyn, Request, Response
+
+from api.schemas import FraudScoreResponse
 
 
 app = Robyn(__file__)
@@ -15,15 +18,15 @@ def get_ready() -> Response:
 
 @app.post("/fraud-score")
 async def calculate_score(payload: Request) -> Response:
-    score = ""
-    response = {
-        "approved": score < 0.6,
-        "fraud_score": score,
-    }
+    score = 0.0
+    response = FraudScoreResponse(
+        approved=score < 0.6,
+        fraud_score=score,
+    )
     return Response(
         status_code=200,
         headers={"content-type": "application/json"},
-        description=response,
+        description=msgspec.json.encode(response).decode(),
     )
 
 
