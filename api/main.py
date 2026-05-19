@@ -6,9 +6,23 @@ from api.schemas import FraudScoreResponse
 
 app = Robyn(__file__)
 
+_ready = False
+
+
+@app.startup
+async def on_startup():
+    global _ready
+    _ready = True
+
 
 @app.get("/ready")
 def get_ready() -> Response:
+    if not _ready:
+        return Response(
+            status_code=503,
+            headers={},
+            description="service unavailable",
+        )
     return Response(
         status_code=200,
         headers={},
