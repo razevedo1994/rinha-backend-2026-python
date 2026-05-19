@@ -1,7 +1,8 @@
 import msgspec
 from robyn import Robyn, Request, Response
 
-from api.schemas import FraudScoreResponse
+from api.schemas import FraudScoreRequest, FraudScoreResponse
+from services.vectorize import vectorize
 
 
 app = Robyn(__file__)
@@ -31,7 +32,9 @@ def get_ready() -> Response:
 
 
 @app.post("/fraud-score")
-async def calculate_score(payload: Request) -> Response:
+async def calculate_score(request: Request) -> Response:
+    payload = msgspec.json.decode(request.body, type=FraudScoreRequest)
+    vector = vectorize(payload)
     score = 0.0
     response = FraudScoreResponse(
         approved=score < 0.6,
